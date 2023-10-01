@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, ValidationPipe } from '@nestjs/common';
-import { UsersService } from '../services/users.service';
-import { UsersDTO } from '../dto/users.dto';
+import { UsersService } from './users.service';
+import { UsersDTO } from './dto/users.dto';
 
 @Controller('api/users')
 export class UsersController {
@@ -8,8 +8,8 @@ export class UsersController {
     }
     //Creacion de un nuevo usuario.
     @Post()
-    create(@Body(new ValidationPipe()) usersDTO: UsersDTO) {
-        return this.usersService.create(usersDTO);
+    async create(@Body(new ValidationPipe()) usersDTO: UsersDTO) {
+        return await this.usersService.create(usersDTO);
     }
     //Despliegue de todos los usuarios.
     @Get()
@@ -18,12 +18,12 @@ export class UsersController {
     }
     //Despliegue segun el email del usuario *Se manda como URL*.
     @Get(':email')
-    getUser(@Param('email') email: string) {
-        return this.usersService.findOneByEmail(email);
+    async getUser(@Param('email') email: string) {
+        return await this.usersService.findOneByEmail(email);
     }
     //Eliminar segun el email del usuario
     @Delete(':email')
-    delete(@Param('email') email: string) {
-        return this.usersService.deleteByEmail(email);
+    async delete(@Param('email') email: string) {
+        return await this.usersService.deleteByEmail(email);
     }
 }

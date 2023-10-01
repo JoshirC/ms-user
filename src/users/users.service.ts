@@ -1,8 +1,8 @@
 import { Get, Injectable, Param, Post } from '@nestjs/common';
-import { Users } from '../schema/user.schema';
+import { Users } from './schema/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UsersDTO } from '../dto/users.dto';
+import { UsersDTO } from './dto/users.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,14 +14,14 @@ export class UsersService {
         return userCreated.save();
     }
 
-    findAll(): Promise<Users[]> {
+    async findAll(): Promise<Users[]> {
         return this.usersModel.find().exec();
     }
 
-    findOneByEmail(email: string) {
+    async findOneByEmail(email: string) {
         return this.usersModel.findOne({ email: email }).exec();
     }
-    deleteByEmail(email: String) {
+    async deleteByEmail(email: String) {
         return this.usersModel.findOneAndDelete({ email: email }).exec();
     }
 }
