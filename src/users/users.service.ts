@@ -10,15 +10,19 @@ export class UsersService {
     [x: string]: any;
     constructor(@InjectModel(Users.name)
     private usersModel: Model<Users>,
-        private jwtService: JwtService,
     ) {
     }
-    async create(email: string, password: string, name: string, lastName: string) {
+    async create(Users: UsersDTO): Promise<Users> {
+        const userCreated = new this.usersModel(Users);
+        return userCreated.save();
+    }
+    /*
+    async createas(email: string, password: string, name: string, lastName: string) {
         const user = new this.usersModel({
             email,
             password,
             name,
-            lastName,
+            lastName
         });
 
         if (!user) {
@@ -28,15 +32,16 @@ export class UsersService {
         const userCreated = await user.save();
         return userCreated;
     }
-
+    */
     async findAll(): Promise<Users[]> {
         return this.usersModel.find().exec();
     }
-
+    /*
     async login(email: string, password: string) {
         return this.usersModel.findOne({ email: email, password: password }).exec();
     }
-    async deleteByEmail(email: String) {
-        return this.usersModel.findOneAndDelete({ email: email }).exec();
+    */
+    async findOneByEmail(email: string) {
+        return this.usersModel.findOne({ email: email });
     }
 }
