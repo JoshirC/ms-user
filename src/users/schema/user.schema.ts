@@ -18,5 +18,8 @@ export class Users {
 
     @Prop()
     lastName: string;
+
+    @Prop()
+    token: string;
 }
 export const UsersSchema = SchemaFactory.createForClass(Users);

@@ -3,10 +3,12 @@ import { UsersService } from 'src/users/users.service';
 import { SingInDTO } from './dto/singIn.dto';
 import * as bcryptjs from 'bcrypt';
 import { LoginDTO } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
     constructor(private readonly usersService: UsersService,
+        private jwtService: JwtService
     ) { }
 
     async singIn({ email, password, name, lastName }: SingInDTO) {
@@ -31,6 +33,13 @@ export class AuthService {
         if (!isMatch) {
             throw new HttpException('UNAUTHORIZED PASSWORD', HttpStatus.UNAUTHORIZED);
         }
-        return user;
+
+        const payload = { id: user.id, email: user.email, name: user.name };
+
+        const access_token = await this.jwtService.signAsync(payload);
+
+        await this.usersService.updateToken(user.id, access_token);
+
+        return { access_token };
     }
 }

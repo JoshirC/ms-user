@@ -23,11 +23,9 @@ export class UsersController {
     findOneByEmail(@Param('email') email: string) {
         return this.usersService.findOneByEmail(email);
     }
-    /*
-    @Post('singIn')
-    async create(@Body() signInDto: SignInDto){
-        const {email, password} = signInDto;
-        return await this.usersService.signIn(email, password);
+    @Post()
+    async addToken(@Param('id') id: string, @Body('token') token: string) {
+        return this.usersService.addToken(token);
     }
-    */
+
 }

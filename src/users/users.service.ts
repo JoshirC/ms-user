@@ -16,32 +16,23 @@ export class UsersService {
         const userCreated = new this.usersModel(Users);
         return userCreated.save();
     }
-    /*
-    async createas(email: string, password: string, name: string, lastName: string) {
-        const user = new this.usersModel({
-            email,
-            password,
-            name,
-            lastName
-        });
 
-        if (!user) {
-            throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
-        }
-
-        const userCreated = await user.save();
-        return userCreated;
-    }
-    */
     async findAll(): Promise<Users[]> {
         return this.usersModel.find().exec();
     }
-    /*
-    async login(email: string, password: string) {
-        return this.usersModel.findOne({ email: email, password: password }).exec();
-    }
-    */
+
     async findOneByEmail(email: string) {
         return this.usersModel.findOne({ email: email });
+    }
+    async updateToken(id: string, token: string): Promise<void> {
+        const user = await this.usersModel.findById(id);
+
+        if (!user) {
+            throw new HttpException('UNAUTHORIZED USER', HttpStatus.UNAUTHORIZED);
+        }
+
+        user.token = token;
+        user.save();
+
     }
 }
