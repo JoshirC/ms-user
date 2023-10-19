@@ -4,6 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersDTO } from './dto/users.dto';
 import { JwtService } from '@nestjs/jwt';
+import { emailDTO } from './dto/email.dto';
+import { error } from 'console';
+import { dataDTO } from './dto/data.dto';
+import { PasswordDTO } from './dto/password.dto';
+import * as bcryptjs from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -34,5 +39,60 @@ export class UsersService {
         user.token = token;
         user.save();
 
+    }
+    async findOneUser(email: string) {
+        const user = this.usersModel.findOne({ email: email });
+        return user;
+    }
+    async updateEmail({ newEmail, email }: emailDTO) {
+        const data = await this.usersModel.findOne({ newEmail: newEmail });
+
+        if (!data) {
+            const user = await this.usersModel.findOne({ email: email });
+            user.email = newEmail;
+            await user.save();
+            return user;
+        } else {
+            throw new HttpException('EMAIL FOUND', HttpStatus.BAD_REQUEST);
+        }
+    }
+    async updateData({ email, name, lastName }: dataDTO) {
+        const data = await this.usersModel.findOne({ email: email });
+        if (!data) {
+            throw new HttpException('EMAIL NOT FOUND', HttpStatus.BAD_REQUEST);
+        } else {
+            data.name = name;
+            data.lastName = lastName;
+            await data.save();
+            return data;
+        }
+    }
+
+
+    async updatePassword({ email, password, newPassword, repeatPassword }: PasswordDTO) {
+        // Buscar el usuario por correo electrónico
+        const user = await this.usersModel.findOne({ email: email });
+        // Verificar si el usuario existe
+        if (!user) {
+            throw new HttpException('EMAIL NOT FOUND', HttpStatus.BAD_REQUEST);
+        }
+        // Comparar la contraseña actual con la contraseña almacenada en la base de datos
+        const isMatch = await bcryptjs.compare(password, user.password);
+        // Si las contraseñas coinciden
+        if (isMatch) {
+            // Verificar si la nueva contraseña y la confirmación coinciden, y si la nueva contraseña es igual a la contraseña actual
+            if (newPassword !== repeatPassword || newPassword === password) {
+                throw new HttpException('NEW PASSWORD INVALID', HttpStatus.BAD_REQUEST);
+            }
+            // Generar el hash de la nueva contraseña
+            const hashPassword = await bcryptjs.hash(newPassword, 10);
+            // Actualizar la contraseña en el modelo de usuario
+            user.password = hashPassword;
+            // Guardar los cambios en la base de datos
+            await user.save();
+            return user;
+        } else {
+            throw new HttpException('CURRENT PASSWORD INVALID', HttpStatus.BAD_REQUEST);
+        }
     }
 }
