@@ -9,6 +9,8 @@ import { error } from 'console';
 import { dataDTO } from './dto/data.dto';
 import { PasswordDTO } from './dto/password.dto';
 import * as bcryptjs from 'bcrypt';
+import * as nodemailer from 'nodemailer';
+import { retry } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +19,7 @@ export class UsersService {
     private usersModel: Model<Users>,
     ) {
     }
+
     async create(Users: UsersDTO): Promise<Users> {
         const userCreated = new this.usersModel(Users);
         return userCreated.save();
@@ -67,7 +70,39 @@ export class UsersService {
             return data;
         }
     }
+    
+    async sendPasswordMail(email:string){
+        try{
+            const user = await this.findOneByEmail(email);
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+"; // Caracteres permitidos en la contraseña
+            let Newpassword = '';
 
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                Newpassword += charset[randomIndex];
+            }
+
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth:{
+                    user: process.env.NODEMAILER_USER,
+                    pass:process.env.NODEMAILER_PASS
+                }
+            });
+            const mailOptions={
+                from: process.env.NODEMAILER_USER,
+                to: user.email,
+                subject: 'Restablecimiento de Contraseña',
+                text: `Tu contraseña de recuperación es: ${Newpassword}`
+            };
+            const NewhashPassword = await bcryptjs.hash(Newpassword,10);
+            user.password = NewhashPassword;
+            return user;
+        }
+        catch(error){
+            return -1;
+        }
+    }
 
     async updatePassword({ email, password, newPassword, repeatPassword }: PasswordDTO) {
         // Buscar el usuario por correo electrónico
