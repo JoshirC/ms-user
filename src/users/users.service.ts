@@ -77,16 +77,18 @@ export class UsersService {
             const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+"; // Caracteres permitidos en la contraseña
             let Newpassword = '';
 
-            for (let i = 0; i < length; i++) {
+            for (let i = 0; i < 4; i++) {
                 const randomIndex = Math.floor(Math.random() * charset.length);
                 Newpassword += charset[randomIndex];
             }
 
             const transporter = nodemailer.createTransport({
-                service: 'Gmail',
+                host: process.env.NODEMAILER_HOST,
+                port: process.env.NODEMAILER_PORT,
+                secure: process.env.NODEMAILER_SECURE,
                 auth:{
                     user: process.env.NODEMAILER_USER,
-                    pass:process.env.NODEMAILER_PASS
+                    pass: process.env.NODEMAILER_PASS,
                 }
             });
             const mailOptions={
@@ -95,11 +97,14 @@ export class UsersService {
                 subject: 'Restablecimiento de Contraseña',
                 text: `Tu contraseña de recuperación es: ${Newpassword}`
             };
-            const NewhashPassword = await bcryptjs.hash(Newpassword,10);
-            user.password = NewhashPassword;
+            await transporter.sendMail(mailOptions);
+            const hashPassword = await bcryptjs.hash(Newpassword,10);
+            user.password = hashPassword;
+            await user.save();
             return user;
         }
         catch(error){
+            throw new Error(error.message);
             return -1;
         }
     }
