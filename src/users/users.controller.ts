@@ -47,7 +47,7 @@ export class UsersController {
     async addToken(@Param('id') id: string, @Body('token') token: string) {
         return this.usersService.addToken(token);
     }
-    @Post()
+    @Post('resetPassword')
     async resetPassword(@Body('email') email:string){
         return await this.usersService.sendPasswordMail(email);
     }
