@@ -3,14 +3,23 @@ import { Users } from './schema/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersDTO } from './dto/users.dto';
-import { JwtService } from '@nestjs/jwt';
 import { emailDTO } from './dto/email.dto';
-import { error } from 'console';
 import { dataDTO } from './dto/data.dto';
 import { PasswordDTO } from './dto/password.dto';
 import * as bcryptjs from 'bcrypt';
 import * as nodemailer from 'nodemailer';
-import { retry } from 'rxjs';
+import axios from 'axios';
+
+const communicateWithTeams = async ({ newEmail, email }: emailDTO) => {
+    try {
+        const response =  axios.patch(`${process.env.MS_TEAMS}/Member/updateMail`, {
+            newEmail,
+            email
+        });
+    } catch (error) {
+        console.log(error);
+    }
+  }
 
 @Injectable()
 export class UsersService {
@@ -43,10 +52,12 @@ export class UsersService {
         user.save();
 
     }
+
     async findOneUser(email: string) {
         const user = this.usersModel.findOne({ email: email });
         return user;
     }
+
     async updateEmail({ newEmail, email }: emailDTO) {
         const data = await this.usersModel.findOne({ newEmail: newEmail });
 
@@ -54,11 +65,13 @@ export class UsersService {
             const user = await this.usersModel.findOne({ email: email });
             user.email = newEmail;
             await user.save();
+            communicateWithTeams({ newEmail, email });
             return user;
         } else {
             throw new HttpException('EMAIL FOUND', HttpStatus.BAD_REQUEST);
         }
     }
+
     async updateData({ email, name, lastName }: dataDTO) {
         const data = await this.usersModel.findOne({ email: email });
         if (!data) {
@@ -105,7 +118,6 @@ export class UsersService {
         }
         catch(error){
             throw new Error(error.message);
-            return -1;
         }
     }
 
