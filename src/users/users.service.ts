@@ -12,7 +12,7 @@ import axios from 'axios';
 
 const communicateWithTeams = async ({ newEmail, email }: emailDTO) => {
     try {
-        const response =  axios.patch(`${process.env.MS_TEAMS}/Member/updateMail`, {
+        const response =  axios.post(`${process.env.MS_TEAMS}/Member/updateMail`, {
             newEmail,
             email
         });
