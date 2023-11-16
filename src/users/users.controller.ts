@@ -39,7 +39,7 @@ export class UsersController {
     async changePassword(@Body() passwordDTO: PasswordDTO) {
         return this.usersService.updatePassword(passwordDTO);
     }
-    @Get()
+    @Post('getByMail')
     findOneByEmail(@Param('email') email: string) {
         return this.usersService.findOneByEmail(email);
     }

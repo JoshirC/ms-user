@@ -19,7 +19,7 @@ const communicateWithTeams = async ({ newEmail, email }: emailDTO) => {
     } catch (error) {
         console.log(error);
     }
-  }
+};
 
 @Injectable()
 export class UsersService {
