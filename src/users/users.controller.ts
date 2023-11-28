@@ -48,8 +48,11 @@ export class UsersController {
         return this.usersService.addToken(token);
     }
     @Post('resetPassword')
-    async resetPassword(@Body('email') email:string){
+    async resetPassword(@Body('email') email: string) {
         return await this.usersService.sendPasswordMail(email);
     }
-    
+    @Get('getUser/:email')
+    async getUser(@Param('email') email: string) {
+        return await this.usersService.findOneByEmail(email);
+    }
 }
