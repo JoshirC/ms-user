@@ -58,4 +58,8 @@ export class UsersController {
         return this.usersService.updatePassword(passwordDTO);
     }
     
+    @Get('getUser/:email')
+    async getUser(@Param('email') email: string) {
+        return await this.usersService.findOneByEmail(email);
+    }
 }
