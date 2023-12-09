@@ -17,39 +17,45 @@ export class UsersController {
         return await this.usersService.create(usersDTO);
     }
 
+    @Post()
+    async addToken(@Param('id') id: string, @Body('token') token: string) {
+        return this.usersService.addToken(token);
+    }
+
     //Despliegue de todos los usuarios.
     @Get()
     getAll() {
         return this.usersService.findAll();
     }
-    @Post('data')
-    async findUser(@Body('email') email: string) {
-        return this.usersService.findOneUser(email);
 
+    @Get('data/:email')
+    async findUser(@Param('email') email: string) {
+        return this.usersService.findOneUser(email);
     }
-    @Post('changeEmail')
-    async changeEmail(@Body() emailDTO: emailDTO) {
-        return this.usersService.updateEmail(emailDTO);
-    }
-    @Post('changeData')
-    async changeData(@Body() dataDTO: dataDTO) {
-        return this.usersService.updateData(dataDTO);
-    }
-    @Post('changePassword')
-    async changePassword(@Body() passwordDTO: PasswordDTO) {
-        return this.usersService.updatePassword(passwordDTO);
-    }
-    @Post('getByMail')
+
+    @Get('getByMail/:email')
     findOneByEmail(@Param('email') email: string) {
         return this.usersService.findOneByEmail(email);
     }
-    @Post()
-    async addToken(@Param('id') id: string, @Body('token') token: string) {
-        return this.usersService.addToken(token);
-    }
-    @Post('resetPassword')
-    async resetPassword(@Body('email') email:string){
+
+    @Put('resetPassword/:email')
+    async resetPassword(@Param('email') email:string){
         return await this.usersService.sendPasswordMail(email);
+    }
+
+    @Put('changeEmail')
+    async changeEmail(@Body() emailDTO: emailDTO) {
+        return this.usersService.updateEmail(emailDTO);
+    }
+
+    @Put('changeData')
+    async changeData(@Body() dataDTO: dataDTO) {
+        return this.usersService.updateData(dataDTO);
+    }
+
+    @Put('changePassword')
+    async changePassword(@Body() passwordDTO: PasswordDTO) {
+        return this.usersService.updatePassword(passwordDTO);
     }
     
 }

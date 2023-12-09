@@ -12,9 +12,8 @@ import axios from 'axios';
 
 const communicateWithTeams = async ({ newEmail, email }: emailDTO) => {
     try {
-        const response =  axios.post(`${process.env.MS_TEAMS}/Member/updateMail`, {
+        const response =  axios.put(`${process.env.MS_TEAMS}/Member/updateMail/${email}`, {
             newEmail,
-            email
         });
     } catch (error) {
         console.log(error);
@@ -41,6 +40,7 @@ export class UsersService {
     async findOneByEmail(email: string) {
         return this.usersModel.findOne({ email: email });
     }
+    
     async updateToken(id: string, token: string): Promise<void> {
         const user = await this.usersModel.findById(id);
 
@@ -122,25 +122,17 @@ export class UsersService {
     }
 
     async updatePassword({ email, password, newPassword, repeatPassword }: PasswordDTO) {
-        // Buscar el usuario por correo electrónico
         const user = await this.usersModel.findOne({ email: email });
-        // Verificar si el usuario existe
         if (!user) {
             throw new HttpException('EMAIL NOT FOUND', HttpStatus.BAD_REQUEST);
         }
-        // Comparar la contraseña actual con la contraseña almacenada en la base de datos
         const isMatch = await bcryptjs.compare(password, user.password);
-        // Si las contraseñas coinciden
         if (isMatch) {
-            // Verificar si la nueva contraseña y la confirmación coinciden, y si la nueva contraseña es igual a la contraseña actual
             if (newPassword !== repeatPassword || newPassword === password) {
                 throw new HttpException('NEW PASSWORD INVALID', HttpStatus.BAD_REQUEST);
             }
-            // Generar el hash de la nueva contraseña
             const hashPassword = await bcryptjs.hash(newPassword, 10);
-            // Actualizar la contraseña en el modelo de usuario
             user.password = hashPassword;
-            // Guardar los cambios en la base de datos
             await user.save();
             return user;
         } else {
