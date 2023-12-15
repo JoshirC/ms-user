@@ -4,6 +4,7 @@ import { SingInDTO } from './dto/singIn.dto';
 import * as bcryptjs from 'bcrypt';
 import { LoginDTO } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Users } from 'src/users/schema/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +12,7 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
-    async singIn({ email, password, name, lastName }: SingInDTO) {
+    async singIn({ email, password, name, lastName }: SingInDTO): Promise<Users> {
 
         const user = await this.usersService.findOneByEmail(email);
 

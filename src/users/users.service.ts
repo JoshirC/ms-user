@@ -12,13 +12,34 @@ import axios from 'axios';
 
 const communicateWithTeams = async ({ newEmail, email }: emailDTO) => {
     try {
-        const response =  axios.put(`${process.env.MS_TEAMS}/Member/updateMail/${email}`, {
+        const response = await axios.put(`${process.env.MS_TEAMS}/Member/updateMail/${email}`, {
             newEmail,
         });
     } catch (error) {
-        console.log(error);
+        console.log('COMUNICACIÓN EQUIPO');
+        console.log(error.response.data);
     }
 };
+
+const deleteMemberByMail = async (email:string) => {
+    try{
+        const response = await axios.delete(`${process.env.MS_TEAMS}/Member/deleteAcount/${email}`);
+    }
+    catch (error) {
+        console.log('COMUNICACIÓN MIEMBRO');
+        console.log(error.response.data);
+    }
+}
+
+const deleteTasksByMail = async (email:string) => {
+    try{
+        const response = await axios.delete(`${process.env.MS_TASKS}/Tasks/deleteUserTasks/${email}`);
+    }
+    catch(error){
+        console.log('COMUNICACIÓN TASKS');
+        console.log(error.response.data);
+    }
+}
 
 @Injectable()
 export class UsersService {
@@ -138,5 +159,11 @@ export class UsersService {
         } else {
             throw new HttpException('CURRENT PASSWORD INVALID', HttpStatus.BAD_REQUEST);
         }
+    }
+
+    async deleteUser(email: string): Promise<void> {
+        await deleteMemberByMail(email);
+        await deleteTasksByMail(email);
+        await this.usersModel.findOneAndDelete({ email: email });
     }
 }
