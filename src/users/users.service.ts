@@ -26,7 +26,6 @@ const deleteMemberByMail = async (email:string) => {
         const response = await axios.delete(`${process.env.MS_TEAMS}/Member/deleteAcount/${email}`);
     }
     catch (error) {
-        console.log('COMUNICACIÓN MIEMBRO');
         console.log(error.response.data);
     }
 }
@@ -36,7 +35,16 @@ const deleteTasksByMail = async (email:string) => {
         const response = await axios.delete(`${process.env.MS_TASKS}/Tasks/deleteUserTasks/${email}`);
     }
     catch(error){
-        console.log('COMUNICACIÓN TASKS');
+        console.log(error.response.data);
+    }
+}
+
+const getIfAdmin = async (email:string) => {
+    try{
+        const response = await axios.get(`${process.env.MS_TEAMS}/Member/getIfAdmin/${email}`);
+        return response.data;
+    }
+    catch(error){
         console.log(error.response.data);
     }
 }
@@ -162,8 +170,13 @@ export class UsersService {
     }
 
     async deleteUser(email: string): Promise<void> {
-        await deleteMemberByMail(email);
-        await deleteTasksByMail(email);
-        await this.usersModel.findOneAndDelete({ email: email });
+        if (!(await getIfAdmin(email))) {
+            await deleteMemberByMail(email);
+            await deleteTasksByMail(email);
+            await this.usersModel.findOneAndDelete({ email: email });
+        }
+        else{
+            throw new HttpException('No puede eliminar teniendo equipos como administrador', HttpStatus.BAD_REQUEST);
+        }
     }
 }
